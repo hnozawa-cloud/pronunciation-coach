@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pronunciation Coach</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .pulse-ring {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans text-slate-900">
+    <div class="max-w-3xl mx-auto px-4 py-12">
+        <header class="text-center mb-8 relative">
+            <button id="settingsBtn" class="absolute right-0 top-0 p-2 text-slate-400 hover:text-slate-600 transition-colors" title="設定">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold tracking-wider uppercase">Multi-Topic Edition</span>
+            <h1 class="text-4xl font-black mt-4 mb-2 tracking-tight text-slate-800">発音チェック</h1>
+        </header>
+
+        <!-- 設定モーダル -->
+        <div id="apiModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+                <h3 class="text-xl font-bold mb-4 text-slate-800">設定</h3>
+                
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Gemini APIキー</label>
+                    <input type="password" id="apiKeyInput" class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 outline-none transition-all" placeholder="AIzaSy...">
+                    <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">
+                        APIキーを設定すると、AIによる詳細な発音アドバイス機能が有効になります。キーはブラウザにのみ保存されます。
+                    </p>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="saveSettings" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition-all">保存</button>
+                    <button id="closeModal" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all">閉じる</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-bold shadow-xl opacity-0 transition-opacity pointer-events-none z-[100]">
+            設定を保存しました
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-100/50 p-6 md:p-10 border border-slate-100">
+            
+            <!-- 例文選択エリア -->
+            <div id="textSelectorArea" class="mb-8">
+                <label class="block text-sm font-bold text-slate-400 mb-3 uppercase tracking-widest flex justify-between items-center">
+                    <span>練習する例文を選択</span>
+                    <span class="text-[10px] normal-case font-normal text-slate-300">Preset Sentences</span>
+                </label>
+                <div id="textList" class="grid grid-cols-1 gap-2 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- JavaScriptでここに例文が追加されます -->
+                </div>
+            </div>
+
+            <!-- 練習テキスト入力 -->
+            <div class="mb-10">
+                <div class="flex justify-between items-end mb-3">
+                    <label class="block text-sm font-bold text-slate-400 uppercase tracking-widest text-left">練習中のテキスト</label>
+                    <button id="speakTargetBtn" class="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors text-xs font-bold" title="お手本を聞く">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M12 9v6m0 0l-3.707-3.707A1 1 0 017.586 11H5a1 1 0 00-1 1v2a1 1 0 001 1h2.586a1 1 0 01.707.293L12 15zm0-6V5.414a1 1 0 00-1.707-.707L6.586 8H5a1 1 0 00-1 1v2a1 1 0 001 1h1.586l3.707 3.707A1 1 0 0012 15.414V9z" />
+                        </svg>
+                        お手本を聞く
+                    </button>
+                </div>
+                <div class="relative group">
+                    <div id="textNumberLabel" class="text-xs font-bold text-indigo-500 mb-1"></div>
+                    <textarea id="targetText" rows="5" 
+                        class="w-full text-lg font-medium p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all resize-none"></textarea>
+                </div>
+            </div>
+
+            <!-- マイクボタン -->
+            <div class="flex flex-col items-center justify-center py-4">
+                <div id="micButton" class="group relative w-24 h-24 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer shadow-xl hover:bg-indigo-600 transition-all active:scale-90">
+                    <div id="ring" class="absolute inset-0 rounded-full transition-all duration-300"></div>
+                    <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path id="micIconPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 11v-4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <p id="statusLabel" class="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">タップして録音開始</p>
+                <div id="liveTranscript" class="mt-4 text-indigo-400 italic text-center text-sm min-h-[1.5em] hidden">認識中...</div>
+            </div>
+
+            <!-- 結果表示エリア -->
+            <div id="resultArea" class="hidden mt-8 space-y-6">
+                <div class="p-5 bg-indigo-50 rounded-2xl border border-indigo-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-bold text-indigo-400 uppercase tracking-wider">あなたの発音:</label>
+                        <span id="matchScore" class="text-xs font-black text-indigo-600 bg-white px-3 py-1 rounded-full"></span>
+                    </div>
+                    <p id="transcriptText" class="text-xl font-bold text-indigo-900 leading-tight italic"></p>
+                </div>
+
+                <div id="aiFeedback" class="hidden">
+                    <h2 class="text-sm font-black text-slate-800 mb-4 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> AIコーチの分析
+                    </h2>
+                    <div id="feedbackLoading" class="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <span class="text-xs text-slate-400 font-bold animate-pulse">分析中...</span>
+                    </div>
+                    <div id="feedbackContent" class="text-slate-600 bg-white border border-slate-100 p-6 rounded-2xl shadow-sm whitespace-pre-wrap text-sm hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_SENTENCES = [
+            "1A-1/The Island of Woods, The Island of Water, and The Island of Mountains are all names for Yakushima. Yakushima is Japan's ninth largest island. It is south of Kyushu. It is one of the wettest places in Japan, as it rains almost 180 days a year. The island is famous for its many plants and animals. Yakushima was the first place in Japan to become a World Natural Heritage Site, and it is one of Japan's most interesting islands.",
+            "1A-2/There are many different kinds of plants and animals on Yakushima. There is a large amount of water on the island, so it is easy for plants to live. As a result, there is a huge variety of plant life on the island, and you can find more than 1,900 different kinds of plants on Yakushima. There are also many kinds of animals, including the Yaku monkey and the Yaku deer.",
+            "1A-3/Perhaps the most famous thing about Yakushima is its great cedar trees. Yakushima's symbol is the Jomon-Sugi cedar tree. Scientists say this tree is between 3,000 and 7,000 years old. Many tourists come to see this tree. It can be reached only on foot, and the hike takes around 10 to 12 hours, round trip. There are many things to see on Yakushima, and many tourists visit the island each year. Yakushima is one of Asia's most beautiful islands.",
+            "2A-1/Namaste. Konnichiwa. Sawasdee. Xin chao. Halo. There are many different ways to say hello if you travel around Asia. We live in a world with many different people and many different cultures. In addition, the world is getting smaller. We can now communicate with people around the world. However, technology is going to improve, and intercultural communication is going to increase even more. So, we all need to understand cultural differences. This will help us to understand other people.",
+            "2A-2/Many schools have classes about intercultural communication. In these classes, students learn about cultural differences. There are many differences. For example, body language can be different. Also customs, for example holidays, weddings, or the way people do business, can be different.",
+            "2A-3/Today, there are more than 6,500 living languages in the world. Each language is its own culture, and each culture has its own way of thinking. Our culture is our way of life. We can see our culture in our thinking and in our ideas. Different cultures can have different ways of thinking. So, we need to have an open mind, and understand that there are cultural differences in the world.",
+            "2A-4/Intercultural communication can be difficult, but there are a few simple rules that we should remember. Don't use slang words. These can be difficult to understand. Remember to listen carefully. Ask questions if you don't understand. Different cultures have different ideas, and sometimes this causes problems. So, we need to be understanding.",
+            "2B-1/When we think about intercultural communication, we must remember that people are individuals. Within each culture there are many different kinds of people, for example, people who like sports, people who like dancing, people who like books, and people who like video games. That is, people are all different. The differences within cultures can be bigger than the differences between cultures.",
+            "2B-2/Furthermore, countries often have many different ethnic groups. For example, in Indonesia, people can be Javanese, Sundanese, Balinese, Chinese and so on. Also, today, people move around. People move to different cities to go to school or to work. As a result, people from different ethnic groups live, work and study together. So, cultures often mix together.",
+            "2B-3/Moreover, it is not unusual for people to move to another country to live and work. As a result, people often marry people from different ethnic groups. So, families mix together. In Brazil, for example, there are over 1.4 million Brazilians whose families came from Japan. When families mix together, cultures mix together. So people are often a mix of many different ethnic groups. . We can't easily put such individuals into one simple ethnic category.",
+            "2B-4/Lastly, we are far more similar than we are different. We are all human. We all want to live in peace. We all want to live happy lives. We all want our friends and family to be healthy and happy. Human wants are very much the same. That is, our basic needs are the same.",
+            "3A-1/The East Asian region has four seasons, spring, summer, fall and winter. So, people in China, Korea and Japan can enjoy the changing seasons. However, from late spring to early summer, there is also a fifth season. It is called the East Asian rainy season. In Korea, it is called jangma. In Chinese, it is called meiyu, and in Japan it is called tsuyu. The name means plum rain. It is called plum rain because the rains always come when the plums grow on the trees.",
+            "3A-2/From the start of June to mid-July, it rains almost every day. It is seldom sunny during the rainy season. This fifth season usually lasts for about fifty days. The air feels different from the other times of year. The air is wet and humid. So it is difficult to wash and dry your clothes. The rainy season is an uncomfortable time of the year.",
+            "3A-3/What causes the rainy season? Every year around this time, cold air from the north meets warm air from the south. The result is a month or more of bad weather. There are also many floods during this season. So, it can also be quite dangerous.",
+            "3A-4/Everyone complains about the rainy season. No one seems to like it. However, the rainy season is very important for this region. The rainy season brings the water that rice needs to grow. Without the rainy season, Japan, Korea, and China would have a very different culture than they have today.",
+            "3B-1/Each year the autumn leaves make fantastic colors. We can see brilliant colors of red, orange, yellow, and gold. The autumn in East Asia is wonderful. You can see these beautiful autumn leaves in China, Korea, and Japan. During the autumn, millions of people enjoy the colors of the autumn leaves.",
+            "3B-2/In Beijing, the capital of China, Fragrant Hill is a popular place to look at the autumn leaves. Fragrant Hill is the name of a park near Beijing. Every autumn, from mid-October, there is a festival. The festival is called the Red Leaf Festival at Fragrant Hill. Each year, thousands of visitors visit the park and take part in the festival.",
+            "3B-3/In Korea, there are many places to look at the autumn leaves. However, the best places are in the mountains. A popular place to look at the autumn leaves is Seoraksan National Park. Seoraksan National Park is on the east side of the Korean peninsula and there are many mountains with beautiful leaves. So, hiking is very popular in autumn.",
+            "3B-4/In Japan, Kyoto is famous for its autumn colors, and you can also enjoy the beautiful autumn colors at night. Many of the temples and shrines around Kyoto turn on lights in the evening. For example, at the Jingoji Temple the leaves are illuminated at night, so many people prefer to visit the temple at night.",
+            "3B-5/In East Asia, the autumn is a good time to go for a walk!",
+            "4A-1/Today, more people than ever before are living in cities. In 1800, only 3% of the world's population lived in cities. Today, more than 50% of the world's population lives in cities. People move to the cities because there are jobs. As a result, the world's cities are growing quickly.",
+            "4A-2/Megacities are cities with more than 10 million people. Most of the world's megacities are in Asia. Tokyo in Japan, Shanghai and Beijing in China, Seoul in Korea, Manila in the Philippines, Jakarta in Indonesia, and Delhi and Mumbai in India are all megacities. Megacities are important for the country's economy. They are a big part of Asian life. By 2050, two billion Asian people will live in megacities.",
+            "4A-3/People come to megacities for a better life. Big cities usually have better jobs with higher salaries. Many important companies have their head offices in the bigger cities. Megacities also have many good schools and universities. If you want a great education, it is good to be in a big city. Life in a megacity is also very convenient. The best restaurants are in the big cities. The best hospitals are in the big cities. The houses are modern. Plus, the buses, subways and trains are fast and easy to use.",
+            "4A-4/Megacities are also good for entertainment. New movies usually come to megacities first. Megacities are centers of culture, with many museums, theaters, shops and art galleries. City life has few difficulties.",
+            "4B-1/Every year, millions of Asians leave rural areas and move to Asia's megacities. The cities get bigger every day and so do the problems. In many of the big cities, there aren't enough jobs. There aren't enough houses. There isn't enough food, or clean water. Lastly, many of the big cities can be dangerous.",
+            "4B-2/One of the biggest problems is poverty. People come to the city for jobs, but often there is not enough work. As a result, thousands of poor people live on the streets. They do not have a place to sleep, enough food, or clean drinking water. No one helps them when they are sick.",
+            "4B-3/Every day, in megacities, a mountain of garbage is thrown away. Some garbage is thrown on the streets. Some is thrown into rivers or the sea. This garbage can make people sick. Air pollution is another big problem. With so many people driving trucks and cars around the city, the air is filled with poisons. This makes it difficult for people to breathe. Serious health problems are caused by garbage and air pollution.",
+            "4B-4/Megacities have high crime rates. With so many people living together, crime is difficult to stop. Robbery is a big problem. Also, terrible crimes such as murder happen every day.",
+            "4B-5/These problems are facts of megacity life. Maybe it's time to move some jobs back to the countryside.",
+            "5A-1/Do you like traveling? According to the World Tourism Organization, the travel industry is growing at an average annual rate of 4% worldwide. Tourism today offers many choices, from wildlife safaris to the interesting night-life in large, modern cities. People like to visit new places and try new things. They enjoy experiencing new cultures and meeting new people.",
+            "5A-2/This is good news for many places, because tourism can bring a lot of money into an area. When tourism grows, new resort hotels are needed. So, when companies build new hotels, workers are needed. This creates new jobs for the local people. In addition, tourists spend a lot of money at restaurants and shops, which helps local businesses. So, tourism is good for economic growth.",
+            "5A-3/Tourism is also a great opportunity. Tourists and locals can learn about each other's culture. Locals can teach tourists about the history and culture of their country. Tourists can learn about the local food, the local arts, the local holidays, and many other things. Tourists can also share their stories about life in their home countries. So, everyone can learn something.",
+            "5A-4/Tourism is good for everyone. Tourists can see some amazing sights and learn about life in another town or country. In addition, when people spend money, the local economy improves. Lastly, tourism helps us to understand the world a bit better.",
+            "5B-1/Tourism brings a lot of money into the host country. So, many local businesses and residents think that tourism is good – at first. However, tourism causes economic and environmental problems for the local community and changes the way local people live.",
+            "5B-2/When tourism grows, large international hotel chains come in and build more resorts, golf courses, and shopping malls. Resort hotels push out local guest houses. Large restaurants push out local restaurants. Local shops are replaced by international chain stores. The local people may have to move to another city or village. They lose their businesses, their jobs and their homes.",
+            "5B-3/Tourism also damages the environment. Farms and forests are destroyed. Tourist resorts create lots of garbage. The ocean around large resorts often becomes polluted by the used water from the hotels. Trekking adventures and cruise ships leave huge amounts of garbage behind. This garbage destroys the natural environment, and the location becomes less popular with tourists.",
+            "5B-4/Finally, tourism changes the local culture. Handicrafts are changed to please tourists, and traditional styles are lost. Restaurants change their menus, and traditional cooking is lost. People move away from rural areas, and their traditional way of life is lost.",
+            "5B-5/Yes, tourism brings in needed money, but at a very high price. Local cultures disappear and are lost forever. Perhaps we should think more about the costs of tourism.",
+            "6A-1/Hot pot is an East Asian stew, cooked while people eat. A large metal pot with boiling stock is put in the middle of the table. The stock is made from chicken, pork, seaweed, or fish. People add thin slices of meat, vegetables, mushrooms, seafood, or dumplings to the boiling stock. When a piece of food is cooked, people take it out, dip it in sauce, and eat it.",
+            "6A-2/Almost everywhere in East Asia people gather together to enjoy a local version of this food. Japanese versions are shabu shabu and nabe. In Korea, people eat jjigae and, in Malaysia, steamboat. Thai people enjoy Thai suki. Hot pot was first cooked in China. There it's called hu gu, or in English, Chinese hot pot.",
+            "6A-3/People usually eat hot pot in winter. Cooking heats the room, and the hot food warms the body. Hot pot is a very social food. Everybody cooks together. Everybody eats together. Because it's easy to make, anyone can do it, and every visitor should try it. It's really good!",
+            "6A-4/It is interesting that nomadic Asian cultures do not have a hot pot tradition. Nomadic people move from place to place with all their belongings. Mongolian culture is nomadic. There was no hot pot in traditional Mongolian cooking. It came to Mongolia from China. The reason is simple. You need a large pot to make hot pot. People who move around a lot don't want to carry heavy pots.",
+            "6A-5/Would you like to have hot pot tonight?",
+            "6B-1/Food is a very important part of Asian culture. Eating is an important part of each day. Perhaps this is why Asian food is so tasty. However, taste is not the only good thing about Asian food. Most Asian food is also good for you.",
+            "6B-2/East Asian people are quite healthy. They have less heart disease and other food-related illnesses than Europeans or North Americans. They live longer, too. One reason is the food. Most East Asian food can be quite healthy. Another reason is the way Asians cook.",
+            "6B-3/Most Asians do not eat much meat or animal fat. Meat may be part of a meal, but meat is usually not the main dish. Also, many Asians eat a lot of fruits, vegetables, and tofu. Fruits and vegetables have a lot of fiber. Fiber protects against heart disease. Tofu can lower cholesterol, which is a kind of fat in your blood, and too much cholesterol can be bad for you.",
+            "6B-4/Stir-frying and steaming are the most popular ways to cook because they keep the flavor in the food. Also, stir-frying and steaming don't use much oil or animal fat. However, this healthy diet is changing. Many Asians today are eating more meat. People are also eating more fast food and processed foods. So, some people are becoming less healthy.",
+            "6B-5/In China and Japan, the number of overweight people is increasing by 1% every year. Heart disease, and other food-related diseases are increasing. However, some East Asians are choosing to go back to a more traditional Asian diet."
+        ];
+
+        let userApiKey = localStorage.getItem('pronunciation_app_key') || "";
+
+        const micButton = document.getElementById('micButton');
+        const micIconPath = document.getElementById('micIconPath');
+        const ring = document.getElementById('ring');
+        const statusLabel = document.getElementById('statusLabel');
+        const liveTranscript = document.getElementById('liveTranscript');
+        const resultArea = document.getElementById('resultArea');
+        const transcriptText = document.getElementById('transcriptText');
+        const matchScore = document.getElementById('matchScore');
+        const aiFeedback = document.getElementById('aiFeedback');
+        const feedbackContent = document.getElementById('feedbackContent');
+        const feedbackLoading = document.getElementById('feedbackLoading');
+        const targetTextInput = document.getElementById('targetText');
+        const textNumberLabel = document.getElementById('textNumberLabel');
+        const apiModal = document.getElementById('apiModal');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const textList = document.getElementById('textList');
+        const speakTargetBtn = document.getElementById('speakTargetBtn');
+
+        window.onload = () => {
+            apiKeyInput.value = userApiKey;
+            renderTextList(DEFAULT_SENTENCES);
+            setSentence(DEFAULT_SENTENCES[0]);
+        };
+
+        const showToast = (msg) => {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.classList.add('opacity-100');
+            setTimeout(() => t.classList.remove('opacity-100'), 3000);
+        };
+
+        // お手本の読み上げ機能
+        speakTargetBtn.addEventListener('click', () => {
+            const textToSpeak = targetTextInput.value.trim();
+            if (!textToSpeak) return;
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            
+            speakTargetBtn.classList.add('animate-pulse');
+            utterance.onend = () => {
+                speakTargetBtn.classList.remove('animate-pulse');
+            };
+
+            window.speechSynthesis.speak(utterance);
+        });
+
+        document.getElementById('settingsBtn').onclick = () => apiModal.classList.remove('hidden');
+        document.getElementById('closeModal').onclick = () => apiModal.classList.add('hidden');
+        document.getElementById('saveSettings').onclick = () => {
+            userApiKey = apiKeyInput.value.trim();
+            localStorage.setItem('pronunciation_app_key', userApiKey);
+            apiModal.classList.add('hidden');
+            showToast("設定を保存しました");
+        };
+
+        function setSentence(fullText) {
+            const parts = fullText.split('/');
+            if (parts.length > 1) {
+                textNumberLabel.innerText = parts[0];
+                targetTextInput.value = parts[1];
+            } else {
+                textNumberLabel.innerText = "";
+                targetTextInput.value = fullText;
+            }
+            resultArea.classList.add('hidden');
+            aiFeedback.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderTextList(rows) {
+            textList.innerHTML = '';
+            rows.forEach(fullText => {
+                const parts = fullText.split('/');
+                const number = parts[0] || "";
+                const content = parts[1] || fullText;
+
+                const btn = document.createElement('button');
+                btn.className = "flex flex-col text-left p-4 bg-slate-50 hover:bg-indigo-50 rounded-xl border border-slate-100 transition-all font-medium text-slate-700";
+                
+                const numSpan = document.createElement('span');
+                numSpan.className = "text-[10px] font-black text-indigo-400 uppercase mb-1";
+                numSpan.innerText = number;
+                
+                const contentSpan = document.createElement('span');
+                contentSpan.className = "text-sm line-clamp-2";
+                contentSpan.innerText = content;
+
+                btn.appendChild(numSpan);
+                btn.appendChild(contentSpan);
+                
+                btn.onclick = () => {
+                    setSentence(fullText);
+                    showToast(`${number} をセットしました`);
+                };
+                textList.appendChild(btn);
+            });
+        }
+
+        let isRecording = false;
+        let recognition;
+        let finalTranscript = "";
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isRecording = true;
+                finalTranscript = "";
+                ring.classList.add('pulse-ring');
+                micButton.classList.replace('bg-indigo-500', 'bg-rose-500');
+                micIconPath.setAttribute('d', 'M6 6h12v12H6z');
+                statusLabel.innerText = "録音中... 再度押して停止";
+                liveTranscript.classList.remove('hidden');
+                window.speechSynthesis.cancel();
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = "";
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + " ";
+                    else interimTranscript += event.results[i][0].transcript;
+                }
+                liveTranscript.innerText = finalTranscript + interimTranscript;
+            };
+
+            recognition.onend = () => { if (isRecording) recognition.start(); };
+        }
+
+        micButton.addEventListener('click', () => {
+            if (isRecording) {
+                isRecording = false;
+                recognition.stop();
+                micButton.classList.replace('bg-rose-500', 'bg-indigo-500');
+                micIconPath.setAttribute('d', 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 11v-4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z');
+                statusLabel.innerText = "タップして録音開始";
+                liveTranscript.classList.add('hidden');
+                const resultText = finalTranscript.trim() || liveTranscript.innerText.trim();
+                if (resultText && resultText !== "認識中...") showResults(resultText);
+            } else {
+                resultArea.classList.add('hidden');
+                aiFeedback.classList.add('hidden');
+                recognition.start();
+            }
+        });
+
+        function calculateSimilarity(s1, s2) {
+            const str1 = s1.toLowerCase().replace(/[^\w\s]/g, "").trim();
+            const str2 = s2.toLowerCase().replace(/[^\w\s]/g, "").trim();
+            if (str1 === str2) return 100;
+            if (!str1 || !str2) return 0;
+            
+            const len1 = str1.length, len2 = str2.length;
+            const matrix = Array(len1+1).fill(null).map(()=>Array(len2+1).fill(null));
+            for(let i=0; i<=len1; i++) matrix[i][0]=i;
+            for(let j=0; j<=len2; j++) matrix[0][j]=j;
+            for(let i=1; i<=len1; i++){
+                for(let j=1; j<=len2; j++){
+                    const cost = str1[i-1] === str2[j-1] ? 0 : 1;
+                    matrix[i][j] = Math.min(matrix[i-1][j]+1, matrix[i][j-1]+1, matrix[i-1][j-1]+cost);
+                }
+            }
+            return Math.floor((1 - matrix[len1][len2] / Math.max(len1, len2)) * 100);
+        }
+
+        function showResults(text) {
+            resultArea.classList.remove('hidden');
+            transcriptText.innerText = text;
+            const score = calculateSimilarity(targetTextInput.value, text);
+            matchScore.innerText = `${score}% Match`;
+            
+            if (userApiKey) {
+                requestAIEvaluation(targetTextInput.value, text, userApiKey);
+            }
+        }
+
+        async function requestAIEvaluation(target, voice, key) {
+            aiFeedback.classList.remove('hidden');
+            feedbackLoading.classList.remove('hidden');
+            feedbackContent.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `お手本英文: "${target}"\nユーザーが実際に発音した英文: "${voice}"\n\n発音コーチとして、ユーザーの発音の改善点を日本語で短く具体的にアドバイスしてください。もし完璧なら褒めてください。` }] }],
+                        systemInstruction: { parts: [{ text: "あなたは親切な英語発音コーチです。中学生でもわかるように簡潔に日本語でアドバイスしてください。" }] }
+                    })
+                });
+
+                const data = await response.json();
+                feedbackLoading.classList.add('hidden');
+                feedbackContent.classList.remove('hidden');
+                feedbackContent.innerText = data.candidates[0].content.parts[0].text;
+            } catch (e) {
+                feedbackLoading.innerText = "AI分析に失敗しました。APIキーが正しいか確認してください。";
+            }
+        }
+    </script>
+</body>
+</html>
