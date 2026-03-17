@@ -15,14 +15,18 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
         .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #f8fafc;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #cbd5e1;
             border-radius: 10px;
+        }
+        #targetText {
+            overflow: hidden;
+            min-height: 120px;
         }
     </style>
 </head>
@@ -31,11 +35,10 @@
         <header class="text-center mb-8 relative">
             <button id="settingsBtn" class="absolute right-0 top-0 p-2 text-slate-400 hover:text-slate-600 transition-colors" title="設定">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 </svg>
             </button>
-            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold tracking-wider uppercase">Multi-Topic Edition</span>
+            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold tracking-wider uppercase">Full Lesson Edition</span>
             <h1 class="text-4xl font-black mt-4 mb-2 tracking-tight text-slate-800">発音チェック</h1>
         </header>
 
@@ -43,71 +46,47 @@
         <div id="apiModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
                 <h3 class="text-xl font-bold mb-4 text-slate-800">設定</h3>
-                
                 <div class="mb-6">
                     <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">Gemini APIキー</label>
                     <input type="password" id="apiKeyInput" class="w-full p-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 outline-none transition-all" placeholder="AIzaSy...">
-                    <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">
-                        APIキーを設定すると、AIによる詳細な発音アドバイス機能が有効になります。キーはブラウザにのみ保存されます。
-                    </p>
                 </div>
-
                 <div class="flex gap-3">
-                    <button id="saveSettings" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 transition-all">保存</button>
-                    <button id="closeModal" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all">閉じる</button>
+                    <button id="saveSettings" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700">保存</button>
+                    <button id="closeModal" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200">閉じる</button>
                 </div>
             </div>
         </div>
 
-        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-bold shadow-xl opacity-0 transition-opacity pointer-events-none z-[100]">
-            設定を保存しました
-        </div>
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-bold shadow-xl opacity-0 transition-opacity pointer-events-none z-[100]"></div>
 
-        <!-- メインコンテンツ -->
-        <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-100/50 p-6 md:p-10 border border-slate-100">
-            
-            <!-- 例文選択エリア -->
-            <div id="textSelectorArea" class="mb-8">
-                <label class="block text-sm font-bold text-slate-400 mb-3 uppercase tracking-widest flex justify-between items-center">
-                    <span>練習する例文を選択</span>
-                    <span class="text-[10px] normal-case font-normal text-slate-300">Preset Sentences</span>
-                </label>
-                <div id="textList" class="grid grid-cols-1 gap-2 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
-                    <!-- JavaScriptでここに例文が追加されます -->
-                </div>
-            </div>
-
-            <!-- 練習テキスト入力 -->
-            <div class="mb-10">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-indigo-100/50 p-6 md:p-10 border border-slate-100 mb-8">
+            <div class="mb-8">
                 <div class="flex justify-between items-end mb-3">
-                    <label class="block text-sm font-bold text-slate-400 uppercase tracking-widest text-left">練習中のテキスト</label>
-                    <button id="speakTargetBtn" class="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors text-xs font-bold" title="お手本を聞く">
+                    <label class="block text-sm font-bold text-slate-400 uppercase tracking-widest">練習テキスト</label>
+                    <button id="speakTargetBtn" class="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-colors text-xs font-bold">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M12 9v6m0 0l-3.707-3.707A1 1 0 017.586 11H5a1 1 0 00-1 1v2a1 1 0 001 1h2.586a1 1 0 01.707.293L12 15zm0-6V5.414a1 1 0 00-1.707-.707L6.586 8H5a1 1 0 00-1 1v2a1 1 0 001 1h1.586l3.707 3.707A1 1 0 0012 15.414V9z" />
                         </svg>
                         お手本を聞く
                     </button>
                 </div>
-                <div class="relative group">
-                    <div id="textNumberLabel" class="text-xs font-bold text-indigo-500 mb-1"></div>
-                    <textarea id="targetText" rows="5" 
-                        class="w-full text-lg font-medium p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all resize-none"></textarea>
-                </div>
+                <div id="textNumberLabel" class="text-xs font-bold text-indigo-500 mb-1"></div>
+                <textarea id="targetText" 
+                    class="w-full text-lg font-medium p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all resize-none"
+                    oninput="autoResize(this)"></textarea>
             </div>
 
-            <!-- マイクボタン -->
             <div class="flex flex-col items-center justify-center py-4">
-                <div id="micButton" class="group relative w-24 h-24 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer shadow-xl hover:bg-indigo-600 transition-all active:scale-90">
+                <div id="micButton" class="group relative w-24 h-24 bg-indigo-500 rounded-full flex items-center justify-center cursor-pointer shadow-xl hover:bg-indigo-600 transition-all active:scale-95">
                     <div id="ring" class="absolute inset-0 rounded-full transition-all duration-300"></div>
                     <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path id="micIconPath" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 11v-4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
                 </div>
-                <p id="statusLabel" class="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">タップして録音開始</p>
+                <p id="statusLabel" class="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest">タップして録音開始</p>
                 <div id="liveTranscript" class="mt-4 text-indigo-400 italic text-center text-sm min-h-[1.5em] hidden">認識中...</div>
             </div>
 
-            <!-- 結果表示エリア -->
             <div id="resultArea" class="hidden mt-8 space-y-6">
                 <div class="p-5 bg-indigo-50 rounded-2xl border border-indigo-100">
                     <div class="flex justify-between items-center mb-2">
@@ -116,7 +95,6 @@
                     </div>
                     <p id="transcriptText" class="text-xl font-bold text-indigo-900 leading-tight italic"></p>
                 </div>
-
                 <div id="aiFeedback" class="hidden">
                     <h2 class="text-sm font-black text-slate-800 mb-4 uppercase tracking-widest flex items-center gap-2">
                         <span class="w-2 h-2 bg-emerald-500 rounded-full"></span> AIコーチの分析
@@ -128,13 +106,23 @@
                 </div>
             </div>
         </div>
+
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-xl shadow-slate-200/50">
+            <label class="block text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">レッスン一覧</label>
+            <div id="textList" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                <!-- JavaScriptでここに例文が追加されます -->
+            </div>
+        </div>
     </div>
 
     <script>
-        const DEFAULT_SENTENCES = [
+        const NEW_SENTENCES = [
             "1A-1/The Island of Woods, The Island of Water, and The Island of Mountains are all names for Yakushima. Yakushima is Japan's ninth largest island. It is south of Kyushu. It is one of the wettest places in Japan, as it rains almost 180 days a year. The island is famous for its many plants and animals. Yakushima was the first place in Japan to become a World Natural Heritage Site, and it is one of Japan's most interesting islands.",
             "1A-2/There are many different kinds of plants and animals on Yakushima. There is a large amount of water on the island, so it is easy for plants to live. As a result, there is a huge variety of plant life on the island, and you can find more than 1,900 different kinds of plants on Yakushima. There are also many kinds of animals, including the Yaku monkey and the Yaku deer.",
             "1A-3/Perhaps the most famous thing about Yakushima is its great cedar trees. Yakushima's symbol is the Jomon-Sugi cedar tree. Scientists say this tree is between 3,000 and 7,000 years old. Many tourists come to see this tree. It can be reached only on foot, and the hike takes around 10 to 12 hours, round trip. There are many things to see on Yakushima, and many tourists visit the island each year. Yakushima is one of Asia's most beautiful islands.",
+            "1B-1/The Island of Woods, The Island of Water, and The Island of Mountains are all names for Yakushima. Yakushima is Japan's ninth largest island. It is south of Kyushu. It is one of the wettest places in Japan, as it rains almost 180 days a year. The island is famous for its many plants and animals. Yakushima was the first place in Japan to become a World Natural Heritage Site, and it is one of Japan's most interesting islands.",
+            "1B-2/There are many different kinds of plants and animals on Yakushima. There is a large amount of water on the island, so it is easy for plants to live. As a result, there is a huge variety of plant life on the island, and you can find more than 1,900 different kinds of plants on Yakushima. There are also many kinds of animals, including the Yaku monkey and the Yaku deer.",
+            "1B-3/Perhaps the most famous thing about Yakushima is its great cedar trees. Yakushima's symbol is the Jomon-Sugi cedar tree. Scientists say this tree is between 3,000 and 7,000 years old. Many tourists come to see this tree. It can be reached only on foot, and the hike takes around 10 to 12 hours, round trip. There are many things to see on Yakushima, and many tourists visit the island each year. Yakushima is one of Asia's most beautiful islands.",
             "2A-1/Namaste. Konnichiwa. Sawasdee. Xin chao. Halo. There are many different ways to say hello if you travel around Asia. We live in a world with many different people and many different cultures. In addition, the world is getting smaller. We can now communicate with people around the world. However, technology is going to improve, and intercultural communication is going to increase even more. So, we all need to understand cultural differences. This will help us to understand other people.",
             "2A-2/Many schools have classes about intercultural communication. In these classes, students learn about cultural differences. There are many differences. For example, body language can be different. Also customs, for example holidays, weddings, or the way people do business, can be different.",
             "2A-3/Today, there are more than 6,500 living languages in the world. Each language is its own culture, and each culture has its own way of thinking. Our culture is our way of life. We can see our culture in our thinking and in our ideas. Different cultures can have different ways of thinking. So, we need to have an open mind, and understand that there are cultural differences in the world.",
@@ -159,7 +147,7 @@
             "4B-1/Every year, millions of Asians leave rural areas and move to Asia's megacities. The cities get bigger every day and so do the problems. In many of the big cities, there aren't enough jobs. There aren't enough houses. There isn't enough food, or clean water. Lastly, many of the big cities can be dangerous.",
             "4B-2/One of the biggest problems is poverty. People come to the city for jobs, but often there is not enough work. As a result, thousands of poor people live on the streets. They do not have a place to sleep, enough food, or clean drinking water. No one helps them when they are sick.",
             "4B-3/Every day, in megacities, a mountain of garbage is thrown away. Some garbage is thrown on the streets. Some is thrown into rivers or the sea. This garbage can make people sick. Air pollution is another big problem. With so many people driving trucks and cars around the city, the air is filled with poisons. This makes it difficult for people to breathe. Serious health problems are caused by garbage and air pollution.",
-            "4B-4/Megacities have high crime rates. With so many people living together, crime is difficult to stop. Robbery is a big problem. Also, terrible crimes such as murder happen every day.",
+            "4B-4/Megacities have high crime rates. With many people living together, crime is difficult to stop. Robbery is a big problem. Also, terrible crimes such as murder happen every day.",
             "4B-5/These problems are facts of megacity life. Maybe it's time to move some jobs back to the countryside.",
             "5A-1/Do you like traveling? According to the World Tourism Organization, the travel industry is growing at an average annual rate of 4% worldwide. Tourism today offers many choices, from wildlife safaris to the interesting night-life in large, modern cities. People like to visit new places and try new things. They enjoy experiencing new cultures and meeting new people.",
             "5A-2/This is good news for many places, because tourism can bring a lot of money into an area. When tourism grows, new resort hotels are needed. So, when companies build new hotels, workers are needed. This creates new jobs for the local people. In addition, tourists spend a lot of money at restaurants and shops, which helps local businesses. So, tourism is good for economic growth.",
@@ -179,11 +167,19 @@
             "6B-2/East Asian people are quite healthy. They have less heart disease and other food-related illnesses than Europeans or North Americans. They live longer, too. One reason is the food. Most East Asian food can be quite healthy. Another reason is the way Asians cook.",
             "6B-3/Most Asians do not eat much meat or animal fat. Meat may be part of a meal, but meat is usually not the main dish. Also, many Asians eat a lot of fruits, vegetables, and tofu. Fruits and vegetables have a lot of fiber. Fiber protects against heart disease. Tofu can lower cholesterol, which is a kind of fat in your blood, and too much cholesterol can be bad for you.",
             "6B-4/Stir-frying and steaming are the most popular ways to cook because they keep the flavor in the food. Also, stir-frying and steaming don't use much oil or animal fat. However, this healthy diet is changing. Many Asians today are eating more meat. People are also eating more fast food and processed foods. So, some people are becoming less healthy.",
-            "6B-5/In China and Japan, the number of overweight people is increasing by 1% every year. Heart disease, and other food-related diseases are increasing. However, some East Asians are choosing to go back to a more traditional Asian diet."
+            "6B-5/In China and Japan, the number of overweight people is increasing by 1% every year. Heart disease, and other food-related diseases are increasing. However, some East Asians are choosing to go back to a more traditional Asian diet.",
+            "7A-1/For many people living outside the U.S.A., our first impressions of America come from Hollywood. For many people, Hollywood is America, and America is Hollywood. Hollywood movies are America's most famous export. Yes, America exports many other things. However, movies are what we like the best. Everyone loves Hollywood.",
+            "7A-2/Moviegoers want quality entertainment. The movie studios know this, and Hollywood delivers. Hollywood studios make a lot of money. They use this money to make films with wonderful special effects and fast-moving action. Using computer graphics and sound effects, film makers can take you down into the deepest oceans, or far out into space. Hollywood movies turn fantasy into reality!",
+            "7A-3/People of all ages enjoy Hollywood movies. One reason is because Hollywood studios produce so many different kinds of stories and films. There are realistic movies about disasters and exciting stories about adventures and heroes. There are heart-warming stories about families and romance. Hollywood introduces us to new worlds with wizards and witches. They give us a look into the future with fantastic science fiction movies. Hollywood offers something for everyone.",
+            "7A-4/People watch Hollywood movies in every corner of the world. We learn a lot about life from these films. We also learn about the world. Hollywood has the money and the talent to make our experience exciting and realistic. Hollywood movies are the best.",
+            "7B-1/Today, Asian film studios are producing many great movies. Japanese animation, Korean dramas, and action movies from Hong Kong are best-sellers around the world. Viewers love the high quality of the stories, the acting, and the film-making techniques.",
+            "7B-2/Asian film studios do not have as much money to spend on movies as Hollywood does. As a result, Asian studios take great care to make movies with wonderful, realistic stories. They tell about families, love, hard work, and tragedy from an Asian point of view. They show many sides of Asian culture, and they teach Asian values like morality and loyalty.",
+            "7B-3/Movie fans also enjoy the performances of Asian actors and the beautiful cinematography. Hollywood movies use too many special effects. As a result, the stories get lost in all the noise and action. Asian movies focus upon acting and realistic scenes. So, moviegoers care more about the characters.",
+            "7B-4/Asian studios have become world leaders in certain film-making techniques. Look at the fantastic martial arts movies from China! Asians were the first to produce movies that make use of wire works and realistic stunts. Now these amazing techniques are copied around the world.",
+            "7B-5/From comedy to action, from thriller to horror, Asian films have given moviegoers total satisfaction for many years. Today, we have so many choices of entertainment. Viewers are more demanding. Asian movies are becoming popular because they are the best."
         ];
 
         let userApiKey = localStorage.getItem('pronunciation_app_key') || "";
-
         const micButton = document.getElementById('micButton');
         const micIconPath = document.getElementById('micIconPath');
         const ring = document.getElementById('ring');
@@ -202,10 +198,15 @@
         const textList = document.getElementById('textList');
         const speakTargetBtn = document.getElementById('speakTargetBtn');
 
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
         window.onload = () => {
             apiKeyInput.value = userApiKey;
-            renderTextList(DEFAULT_SENTENCES);
-            setSentence(DEFAULT_SENTENCES[0]);
+            renderTextList(NEW_SENTENCES);
+            setSentence(NEW_SENTENCES[0]);
         };
 
         const showToast = (msg) => {
@@ -214,21 +215,15 @@
             setTimeout(() => t.classList.remove('opacity-100'), 3000);
         };
 
-        // お手本の読み上げ機能
         speakTargetBtn.addEventListener('click', () => {
             const textToSpeak = targetTextInput.value.trim();
             if (!textToSpeak) return;
-
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
             utterance.lang = 'en-US';
             utterance.rate = 0.9;
-            
             speakTargetBtn.classList.add('animate-pulse');
-            utterance.onend = () => {
-                speakTargetBtn.classList.remove('animate-pulse');
-            };
-
+            utterance.onend = () => speakTargetBtn.classList.remove('animate-pulse');
             window.speechSynthesis.speak(utterance);
         });
 
@@ -250,6 +245,7 @@
                 textNumberLabel.innerText = "";
                 targetTextInput.value = fullText;
             }
+            autoResize(targetTextInput);
             resultArea.classList.add('hidden');
             aiFeedback.classList.add('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -261,32 +257,24 @@
                 const parts = fullText.split('/');
                 const number = parts[0] || "";
                 const content = parts[1] || fullText;
-
                 const btn = document.createElement('button');
-                btn.className = "flex flex-col text-left p-4 bg-slate-50 hover:bg-indigo-50 rounded-xl border border-slate-100 transition-all font-medium text-slate-700";
-                
+                btn.className = "flex flex-col text-left p-4 bg-slate-50 hover:bg-indigo-50 rounded-xl border border-slate-100 transition-all group";
                 const numSpan = document.createElement('span');
-                numSpan.className = "text-[10px] font-black text-indigo-400 uppercase mb-1";
+                numSpan.className = "text-[10px] font-black text-indigo-400 group-hover:text-indigo-600 uppercase mb-1";
                 numSpan.innerText = number;
-                
                 const contentSpan = document.createElement('span');
-                contentSpan.className = "text-sm line-clamp-2";
+                contentSpan.className = "text-xs line-clamp-1 opacity-60 font-medium";
                 contentSpan.innerText = content;
-
                 btn.appendChild(numSpan);
                 btn.appendChild(contentSpan);
-                
-                btn.onclick = () => {
-                    setSentence(fullText);
-                    showToast(`${number} をセットしました`);
-                };
+                btn.onclick = () => setSentence(fullText);
                 textList.appendChild(btn);
             });
         }
 
         let isRecording = false;
         let recognition;
-        let finalTranscript = "";
+        let cumulativeTranscript = "";
 
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -297,25 +285,32 @@
 
             recognition.onstart = () => {
                 isRecording = true;
-                finalTranscript = "";
+                cumulativeTranscript = "";
                 ring.classList.add('pulse-ring');
                 micButton.classList.replace('bg-indigo-500', 'bg-rose-500');
                 micIconPath.setAttribute('d', 'M6 6h12v12H6z');
-                statusLabel.innerText = "録音中... 再度押して停止";
+                statusLabel.innerText = "録音中... 再タップで停止";
                 liveTranscript.classList.remove('hidden');
                 window.speechSynthesis.cancel();
             };
 
             recognition.onresult = (event) => {
                 let interimTranscript = "";
+                let currentFinal = "";
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + " ";
-                    else interimTranscript += event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        currentFinal += event.results[i][0].transcript + " ";
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
                 }
-                liveTranscript.innerText = finalTranscript + interimTranscript;
+                cumulativeTranscript += currentFinal;
+                liveTranscript.innerText = (cumulativeTranscript + interimTranscript).trim();
             };
 
-            recognition.onend = () => { if (isRecording) recognition.start(); };
+            recognition.onend = () => {
+                if (isRecording) { try { recognition.start(); } catch(e) {} }
+            };
         }
 
         micButton.addEventListener('click', () => {
@@ -326,8 +321,8 @@
                 micIconPath.setAttribute('d', 'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 11v-4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z');
                 statusLabel.innerText = "タップして録音開始";
                 liveTranscript.classList.add('hidden');
-                const resultText = finalTranscript.trim() || liveTranscript.innerText.trim();
-                if (resultText && resultText !== "認識中...") showResults(resultText);
+                const finalResult = (cumulativeTranscript + liveTranscript.innerText).trim();
+                if (finalResult) { showResults(finalResult); }
             } else {
                 resultArea.classList.add('hidden');
                 aiFeedback.classList.add('hidden');
@@ -335,23 +330,20 @@
             }
         });
 
-        function calculateSimilarity(s1, s2) {
-            const str1 = s1.toLowerCase().replace(/[^\w\s]/g, "").trim();
-            const str2 = s2.toLowerCase().replace(/[^\w\s]/g, "").trim();
-            if (str1 === str2) return 100;
-            if (!str1 || !str2) return 0;
-            
-            const len1 = str1.length, len2 = str2.length;
-            const matrix = Array(len1+1).fill(null).map(()=>Array(len2+1).fill(null));
-            for(let i=0; i<=len1; i++) matrix[i][0]=i;
-            for(let j=0; j<=len2; j++) matrix[0][j]=j;
-            for(let i=1; i<=len1; i++){
-                for(let j=1; j<=len2; j++){
-                    const cost = str1[i-1] === str2[j-1] ? 0 : 1;
-                    matrix[i][j] = Math.min(matrix[i-1][j]+1, matrix[i][j-1]+1, matrix[i-1][j-1]+cost);
-                }
-            }
-            return Math.floor((1 - matrix[len1][len2] / Math.max(len1, len2)) * 100);
+        function calculateSimilarity(target, voice) {
+            const clean = (str) => str.toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, " ").trim();
+            const targetWords = clean(target).split(" ").filter(w => w !== "");
+            const voiceWords = clean(voice).split(" ").filter(w => w !== "");
+            if (targetWords.length === 0) return 0;
+            let matchCount = 0;
+            const tempVoiceWords = [...voiceWords];
+            targetWords.forEach(word => {
+                const index = tempVoiceWords.indexOf(word);
+                if (index !== -1) { matchCount++; tempVoiceWords.splice(index, 1); }
+            });
+            const wordMatchScore = (matchCount / targetWords.length) * 100;
+            const lengthPenalty = Math.max(0, (voiceWords.length - targetWords.length) / targetWords.length * 20);
+            return Math.max(0, Math.min(100, Math.floor(wordMatchScore - lengthPenalty)));
         }
 
         function showResults(text) {
@@ -359,17 +351,13 @@
             transcriptText.innerText = text;
             const score = calculateSimilarity(targetTextInput.value, text);
             matchScore.innerText = `${score}% Match`;
-            
-            if (userApiKey) {
-                requestAIEvaluation(targetTextInput.value, text, userApiKey);
-            }
+            if (userApiKey) { requestAIEvaluation(targetTextInput.value, text, userApiKey); }
         }
 
         async function requestAIEvaluation(target, voice, key) {
             aiFeedback.classList.remove('hidden');
             feedbackLoading.classList.remove('hidden');
             feedbackContent.classList.add('hidden');
-            
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${key}`, {
                     method: 'POST',
@@ -379,13 +367,12 @@
                         systemInstruction: { parts: [{ text: "あなたは親切な英語発音コーチです。中学生でもわかるように簡潔に日本語でアドバイスしてください。" }] }
                     })
                 });
-
                 const data = await response.json();
                 feedbackLoading.classList.add('hidden');
                 feedbackContent.classList.remove('hidden');
                 feedbackContent.innerText = data.candidates[0].content.parts[0].text;
             } catch (e) {
-                feedbackLoading.innerText = "AI分析に失敗しました。APIキーが正しいか確認してください。";
+                feedbackLoading.innerText = "AI分析に失敗しました。APIキーを確認してください。";
             }
         }
     </script>
