@@ -38,7 +38,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 </svg>
             </button>
-            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold tracking-wider uppercase">Full Lesson Edition</span>
+            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold tracking-wider uppercase">Complete Lesson Edition</span>
             <h1 class="text-4xl font-black mt-4 mb-2 tracking-tight text-slate-800">発音チェック</h1>
         </header>
 
@@ -116,10 +116,13 @@
     </div>
 
     <script>
-        const NEW_SENTENCES = [
+        const ALL_SENTENCES = [
             "1A-1/The Island of Woods, The Island of Water, and The Island of Mountains are all names for Yakushima. Yakushima is Japan's ninth largest island. It is south of Kyushu. It is one of the wettest places in Japan, as it rains almost 180 days a year. The island is famous for its many plants and animals. Yakushima was the first place in Japan to become a World Natural Heritage Site, and it is one of Japan's most interesting islands.",
             "1A-2/There are many different kinds of plants and animals on Yakushima. There is a large amount of water on the island, so it is easy for plants to live. As a result, there is a huge variety of plant life on the island, and you can find more than 1,900 different kinds of plants on Yakushima. There are also many kinds of animals, including the Yaku monkey and the Yaku deer.",
             "1A-3/Perhaps the most famous thing about Yakushima is its great cedar trees. Yakushima's symbol is the Jomon-Sugi cedar tree. Scientists say this tree is between 3,000 and 7,000 years old. Many tourists come to see this tree. It can be reached only on foot, and the hike takes around 10 to 12 hours, round trip. There are many things to see on Yakushima, and many tourists visit the island each year. Yakushima is one of Asia's most beautiful islands.",
+            "1B-1/The Island of Woods, The Island of Water, and The Island of Mountains are all names for Yakushima. Yakushima is Japan's ninth largest island. It is south of Kyushu. It is one of the wettest places in Japan, as it rains almost 180 days a year. The island is famous for its many plants and animals. Yakushima was the first place in Japan to become a World Natural Heritage Site, and it is one of Japan's most interesting islands.",
+            "1B-2/There are many different kinds of plants and animals on Yakushima. There is a large amount of water on the island, so it is easy for plants to live. As a result, there is a huge variety of plant life on the island, and you can find more than 1,900 different kinds of plants on Yakushima. There are also many kinds of animals, including the Yaku monkey and the Yaku deer.",
+            "1B-3/Perhaps the most famous thing about Yakushima is its great cedar trees. Yakushima's symbol is the Jomon-Sugi cedar tree. Scientists say this tree is between 3,000 and 7,000 years old. Many tourists come to see this tree. It can be reached only on foot, and the hike takes around 10 to 12 hours, round trip. There are many things to see on Yakushima, and many tourists visit the island each year. Yakushima is one of Asia's most beautiful islands.",
             "2A-1/Namaste. Konnichiwa. Sawasdee. Xin chao. Halo. There are many different ways to say hello if you travel around Asia. We live in a world with many different people and many different cultures. In addition, the world is getting smaller. We can now communicate with people around the world. However, technology is going to improve, and intercultural communication is going to increase even more. So, we all need to understand cultural differences. This will help us to understand other people.",
             "2A-2/Many schools have classes about intercultural communication. In these classes, students learn about cultural differences. There are many differences. For example, body language can be different. Also customs, for example holidays, weddings, or the way people do business, can be different.",
             "2A-3/Today, there are more than 6,500 living languages in the world. Each language is its own culture, and each culture has its own way of thinking. Our culture is our way of life. We can see our culture in our thinking and in our ideas. Different cultures can have different ways of thinking. So, we need to have an open mind, and understand that there are cultural differences in the world.",
@@ -136,13 +139,44 @@
             "3B-2/In Beijing, the capital of China, Fragrant Hill is a popular place to look at the autumn leaves. Fragrant Hill is the name of a park near Beijing. Every autumn, from mid-October, there is a festival. The festival is called the Red Leaf Festival at Fragrant Hill. Each year, thousands of visitors visit the park and take part in the festival.",
             "3B-3/In Korea, there are many places to look at the autumn leaves. However, the best places are in the mountains. A popular place to look at the autumn leaves is Seoraksan National Park. Seoraksan National Park is on the east side of the Korean peninsula and there are many mountains with beautiful leaves. So, hiking is very popular in autumn.",
             "3B-4/In Japan, Kyoto is famous for its autumn colors, and you can also enjoy the beautiful autumn colors at night. Many of the temples and shrines around Kyoto turn on lights in the evening. For example, at the Jingoji Temple the leaves are illuminated at night, so many people prefer to visit the temple at night.",
+            "3B-5/In East Asia, the autumn is a good time to go for a walk!",
             "4A-1/Today, more people than ever before are living in cities. In 1800, only 3% of the world's population lived in cities. Today, more than 50% of the world's population lives in cities. People move to the cities because there are jobs. As a result, the world's cities are growing quickly.",
             "4A-2/Megacities are cities with more than 10 million people. Most of the world's megacities are in Asia. Tokyo in Japan, Shanghai and Beijing in China, Seoul in Korea, Manila in the Philippines, Jakarta in Indonesia, and Delhi and Mumbai in India are all megacities. Megacities are important for the country's economy. They are a big part of Asian life. By 2050, two billion Asian people will live in megacities.",
             "4A-3/People come to megacities for a better life. Big cities usually have better jobs with higher salaries. Many important companies have their head offices in the bigger cities. Megacities also have many good schools and universities. If you want a great education, it is good to be in a big city. Life in a megacity is also very convenient. The best restaurants are in the big cities. The best hospitals are in the big cities. The houses are modern. Plus, the buses, subways and trains are fast and easy to use.",
             "4A-4/Megacities are also good for entertainment. New movies usually come to megacities first. Megacities are centers of culture, with many museums, theaters, shops and art galleries. City life has few difficulties.",
+            "4B-1/Every year, millions of Asians leave rural areas and move to Asia's megacities. The cities get bigger every day and so do the problems. In many of the big cities, there aren't enough jobs. There aren't enough houses. There isn't enough food, or clean water. Lastly, many of the big cities can be dangerous.",
+            "4B-2/One of the biggest problems is poverty. People come to the city for jobs, but often there is not enough work. As a result, thousands of poor people live on the streets. They do not have a place to sleep, enough food, or clean drinking water. No one helps them when they are sick.",
+            "4B-3/Every day, in megacities, a mountain of garbage is thrown away. Some garbage is thrown on the streets. Some is thrown into rivers or the sea. This garbage can make people sick. Air pollution is another big problem. With so many people driving trucks and cars around the city, the air is filled with poisons. This makes it difficult for people to breathe. Serious health problems are caused by garbage and air pollution.",
+            "4B-4/Megacities have high crime rates. With so many people living together, crime is difficult to stop. Robbery is a big problem. Also, terrible crimes such as murder happen every day.",
+            "4B-5/These problems are facts of megacity life. Maybe it's time to move some jobs back to the countryside.",
             "5A-1/Do you like traveling? According to the World Tourism Organization, the travel industry is growing at an average annual rate of 4% worldwide. Tourism today offers many choices, from wildlife safaris to the interesting night-life in large, modern cities. People like to visit new places and try new things. They enjoy experiencing new cultures and meeting new people.",
+            "5A-2/This is good news for many places, because tourism can bring a lot of money into an area. When tourism grows, new resort hotels are needed. So, when companies build new hotels, workers are needed. This creates new jobs for the local people. In addition, tourists spend a lot of money at restaurants and shops, which helps local businesses. So, tourism is good for economic growth.",
+            "5A-3/Tourism is also a great opportunity. Tourists and locals can learn about each other's culture. Locals can teach tourists about the history and culture of their country. Tourists can learn about the local food, the local arts, the local holidays, and many other things. Tourists can also share their stories about life in their home countries. So, everyone can learn something.",
+            "5A-4/Tourism is good for everyone. Tourists can see some amazing sights and learn about life in another town or country. In addition, when people spend money, the local economy improves. Lastly, tourism helps us to understand the world a bit better.",
+            "5B-1/Tourism brings a lot of money into the host country. So, many local businesses and residents think that tourism is good – at first. However, tourism causes economic and environmental problems for the local community and changes the way local people live.",
+            "5B-2/When tourism grows, large international hotel chains come in and build more resorts, golf courses, and shopping malls. Resort hotels push out local guest houses. Large restaurants push out local restaurants. Local shops are replaced by international chain stores. The local people may have to move to another city or village. They lose their businesses, their jobs and their homes.",
+            "5B-3/Tourism also damages the environment. Farms and forests are destroyed. Tourist resorts create lots of garbage. The ocean around large resorts often becomes polluted by the used water from the hotels. Trekking adventures and cruise ships leave huge amounts of garbage behind. This garbage destroys the natural environment, and the location becomes less popular with tourists.",
+            "5B-4/Finally, tourism changes the local culture. Handicrafts are changed to please tourists, and traditional styles are lost. Restaurants change their menus, and traditional cooking is lost. People move away from rural areas, and their traditional way of life is lost.",
+            "5B-5/Yes, tourism brings in needed money, but at a very high price. Local cultures disappear and are lost forever. Perhaps we should think more about the costs of tourism.",
             "6A-1/Hot pot is an East Asian stew, cooked while people eat. A large metal pot with boiling stock is put in the middle of the table. The stock is made from chicken, pork, seaweed, or fish. People add thin slices of meat, vegetables, mushrooms, seafood, or dumplings to the boiling stock. When a piece of food is cooked, people take it out, dip it in sauce, and eat it.",
-            "7A-1/For many people living outside the U.S.A., our first impressions of America come from Hollywood. For many people, Hollywood is America, and America is Hollywood. Hollywood movies are America's most famous export. Yes, America exports many other things. However, movies are what we like the best. Everyone loves Hollywood."
+            "6A-2/Almost everywhere in East Asia people gather together to enjoy a local version of this food. Japanese versions are shabu shabu and nabe. In Korea, people eat jjigae and, in Malaysia, steamboat. Thai people enjoy Thai suki. Hot pot was first cooked in China. There it's called hu gu, or in English, Chinese hot pot.",
+            "6A-3/People usually eat hot pot in winter. Cooking heats the room, and the hot food warms the body. Hot pot is a very social food. Everybody cooks together. Everybody eats together. Because it's easy to make, anyone can do it, and every visitor should try it. It's really good!",
+            "6A-4/It is interesting that nomadic Asian cultures do not have a hot pot tradition. Nomadic people move from place to place with all their belongings. Mongolian culture is nomadic. There was no hot pot in traditional Mongolian cooking. It came to Mongolia from China. The reason is simple. You need a large pot to make hot pot. People who move around a lot don't want to carry heavy pots.",
+            "6A-5/Would you like to have hot pot tonight?",
+            "6B-1/Food is a very important part of Asian culture. Eating is an important part of each day. Perhaps this is why Asian food is so tasty. However, taste is not the only good thing about Asian food. Most Asian food is also good for you.",
+            "6B-2/East Asian people are quite healthy. They have less heart disease and other food-related illnesses than Europeans or North Americans. They live longer, too. One reason is the food. Most East Asian food can be quite healthy. Another reason is the way Asians cook.",
+            "6B-3/Most Asians do not eat much meat or animal fat. Meat may be part of a meal, but meat is usually not the main dish. Also, many Asians eat a lot of fruits, vegetables, and tofu. Fruits and vegetables have a lot of fiber. Fiber protects against heart disease. Tofu can lower cholesterol, which is a kind of fat in your blood, and too much cholesterol can be bad for you.",
+            "6B-4/Stir-frying and steaming are the most popular ways to cook because they keep the flavor in the food. Also, stir-frying and steaming don't use much oil or animal fat. However, this healthy diet is changing. Many Asians today are eating more meat. People are also eating more fast food and processed foods. So, some people are becoming less healthy.",
+            "6B-5/In China and Japan, the number of overweight people is increasing by 1% every year. Heart disease, and other food-related diseases are increasing. However, some East Asians are choosing to go back to a more traditional Asian diet.",
+            "7A-1/For many people living outside the U.S.A., our first impressions of America come from Hollywood. For many people, Hollywood is America, and America is Hollywood. Hollywood movies are America's most famous export. Yes, America exports many other things. However, movies are what we like the best. Everyone loves Hollywood.",
+            "7A-2/Moviegoers want quality entertainment. The movie studios know this, and Hollywood delivers. Hollywood studios make a lot of money. They use this money to make films with wonderful special effects and fast-moving action. Using computer graphics and sound effects, film makers can take you down into the deepest oceans, or far out into space. Hollywood movies turn fantasy into reality!",
+            "7A-3/People of all ages enjoy Hollywood movies. One reason is because Hollywood studios produce so many different kinds of stories and films. There are realistic movies about disasters and exciting stories about adventures and heroes. There are heart-warming stories about families and romance. Hollywood introduces us to new worlds with wizards and witches. They give us a look into the future with fantastic science fiction movies. Hollywood offers something for everyone.",
+            "7A-4/People watch Hollywood movies in every corner of the world. We learn a lot about life from these films. We also learn about the world. Hollywood has the money and the talent to make our experience exciting and realistic. Hollywood movies are the best.",
+            "7B-1/Today, Asian film studios are producing many great movies. Japanese animation, Korean dramas, and action movies from Hong Kong are best-sellers around the world. Viewers love the high quality of the stories, the acting, and the film-making techniques.",
+            "7B-2/Asian film studios do not have as much money to spend on movies as Hollywood does. As a result, Asian studios take great care to make movies with wonderful, realistic stories. They tell about families, love, hard work, and tragedy from an Asian point of view. They show many sides of Asian culture, and they teach Asian values like morality and loyalty.",
+            "7B-3/Movie fans also enjoy the performances of Asian actors and the beautiful cinematography. Hollywood movies use too many special effects. As a result, the stories get lost in all the noise and action. Asian movies focus upon acting and realistic scenes. So, moviegoers care more about the characters.",
+            "7B-4/Asian studios have become world leaders in certain film-making techniques. Look at the fantastic martial arts movies from China! Asians were the first to produce movies that make use of wire works and realistic stunts. Now these amazing techniques are copied around the world.",
+            "7B-5/From comedy to action, from thriller to horror, Asian films have given moviegoers total satisfaction for many years. Today, we have so many choices of entertainment. Viewers are more demanding. Asian movies are becoming popular because they are the best."
         ];
 
         let userApiKey = localStorage.getItem('pronunciation_app_key') || "";
@@ -167,10 +201,8 @@
 
         let isSpeaking = false;
 
-        // 英語音声を検索する補助関数
         function findBestEnglishVoice() {
             const voices = window.speechSynthesis.getVoices();
-            // Google, Siri, Samantha など高品質な英語(US)音声を優先的に探す
             return voices.find(v => v.lang === 'en-US' && v.name.includes('Google')) || 
                    voices.find(v => v.lang === 'en-US' && v.name.includes('Siri')) ||
                    voices.find(v => v.lang === 'en-US' && v.name.includes('Samantha')) ||
@@ -178,7 +210,6 @@
                    voices.find(v => v.lang.startsWith('en'));
         }
 
-        // 音声リストの初期化（Safari/iOS対策: 何度も呼ばれる可能性がある）
         function initVoices() {
             window.speechSynthesis.getVoices();
         }
@@ -195,8 +226,8 @@
         window.onload = () => {
             apiKeyInput.value = userApiKey;
             initVoices();
-            renderTextList(NEW_SENTENCES);
-            setSentence(NEW_SENTENCES[0]);
+            renderTextList(ALL_SENTENCES);
+            setSentence(ALL_SENTENCES[0]);
         };
 
         const showToast = (msg) => {
@@ -205,7 +236,6 @@
             setTimeout(() => t.classList.remove('opacity-100'), 3000);
         };
 
-        // お手本ボタンのロジック
         speakTargetBtn.addEventListener('click', () => {
             if (isSpeaking) {
                 window.speechSynthesis.cancel();
@@ -216,12 +246,9 @@
             const textToSpeak = targetTextInput.value.trim();
             if (!textToSpeak) return;
 
-            // Safari対策: 再生直前に一度全キャンセルし、新しいインスタンスを作成
             window.speechSynthesis.cancel();
             
             const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            
-            // 英語音声を毎回探し直して設定
             const bestVoice = findBestEnglishVoice();
             if (bestVoice) {
                 utterance.voice = bestVoice;
@@ -240,13 +267,8 @@
                 speakerBtnText.innerText = "お手本を止める";
             };
 
-            utterance.onend = () => {
-                stopSpeakingUI();
-            };
-
-            utterance.onerror = () => {
-                stopSpeakingUI();
-            };
+            utterance.onend = () => stopSpeakingUI();
+            utterance.onerror = () => stopSpeakingUI();
 
             window.speechSynthesis.speak(utterance);
         });
